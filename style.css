@@ -178,6 +178,7 @@ add{
 }
 
 add h1{
+    padding: 16px;
     color: #293b3d;
 }
 add h1 span{
@@ -305,7 +306,7 @@ header{
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     background: #ffffff88;
-    border-bottom: 1px solid #555;
+    border-bottom: 1px solid #999;
     transition: 0.4s, visibility 0.6s;
 }
 header .f{
@@ -375,7 +376,7 @@ sidepanel line{
     right: -1px;
     bottom: 0;
     display: block;
-    border-right: 1px solid #555;
+    border-right: 1px solid #999;
     width: 1px;
     height: 100%;
     transition: 0.4s;
@@ -414,7 +415,7 @@ sidepanel span{
 }
 sidepanel sideclass{
     display: block;
-    height: 70%;
+    height: calc(100% - 210px);
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -478,9 +479,18 @@ classes class ti{
     --color1: #65baff;
     --color2: #000;
 }
+.class{
+    height: 100%;
+    overflow: auto;
+}
+.class, .settings{
+    padding: 16px;
+}
 .class input, .settings h2{
     background: linear-gradient(to left, rgba(255,0,0,0), var(--color1));
     color: var(--color2);
+    margin: -16px;
+    margin-bottom: 16px;
     padding: 21.5px 16px;
     width: calc(100% - 72px);
     border: 0;
@@ -488,4 +498,91 @@ classes class ti{
 }
 .class input:focus{
     background-color: var(--color1);
+}
+
+.settings button, .settings .setting{
+    padding: 12px;
+    border-radius: 8px;
+    background: #eee;
+}
+.settings button:hover{
+    background: #bbb;
+}
+.settings h3{
+    /* color: var(--color2); */
+    font-size: 24px;
+    font-weight: 400;
+}
+.settings .setting{
+    position: relative;
+    max-width: 600px;
+}
+.settings .setting ti{
+    display: block;
+    font-size: 20px;
+}
+.settings .setting co{
+    color: #333;
+    display: block;
+    width: calc(100% - 160px);
+}
+.settings .setting toggleswitch{
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+}
+.settings .setting toggleswitch div{
+    border-radius: 99px;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.settings .setting toggleswitch div:before{
+    border-radius: 99px;
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.settings .setting toggleswitch.active div{
+    background: var(--color1);
+}
+.settings .setting toggleswitch.active div:before{
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.class createpost{
+    display: block;
+    color: var(--color2);
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid var(--color1);
+}
+
+.class posts{
+    display: block;
+}
+.class post{
+    border: 2px solid #d8d8d8;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 10px 0;
+    display: block;
 }

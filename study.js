@@ -1,10 +1,37 @@
 var app = document.getElementsByTagName("app")[0]
-var storage = localStorage.getItem("classes")
-//Remove the storage later when not on laptop
-//and refactor realStorage to just storage
-var realStorage = {}
-realStorage.classes = {}
-var settings = { version : "1.2.0Beta"}
+var storage = {}
+storage.classes = {}
+var fromLocalStorage = localStorage.getItem("storage")
+if(fromLocalStorage){
+    try { // Why isn't my try catch catching? // It's catching when I ClearData()?
+        storage = JSON.parse(fromLocalStorage)
+    } catch (error) {
+        console.log("Seems like your data is corrupted! Error: ", error)
+    }
+}
+function SaveSettings(){
+    localStorage.setItem("storage", JSON.stringify(storage))
+}
+function ClearData(){
+    var storage = {}
+    storage.classes = {}
+    localStorage.setItem("storage", storage)
+    location.reload()
+    
+}
+var settings = { version : "1.2.1Beta"}
+
+window.onload = function(){
+    var loadClasses = Object.keys(storage.classes)
+    if(loadClasses.length>0){
+        hideWelcome()
+        for (let i = 0; i < loadClasses.length; i++) {
+            const classId = loadClasses[i]
+            const element = storage.classes[loadClasses[i]]
+            LoadClass(element.name, element.color1, element.color2, classId)
+        }
+    }
+}
 
 var colors = { 1 : ["#f22c4d", "#4f000d"], 2 : ["#ff9933", "#301901"], 3 : ["#ffff4f", "#4a4a00"], 4 : ["#4aff50", "#005403"], 5 : ["#47ffd7", "#004032"], 6 : ["#65baff", "#002e54"], 7 : ["##4261ff", "#000e54"], 8 : ["#c14fff", "#33004f"], 9 : ["#ff61fa", "#3d003b"], 10 : ["#8c3030", "#290000"], 11 : ["#000", "#fff"] }
 var selectedColor
@@ -17,11 +44,55 @@ for(let i = 1; i < Object.keys(colors).length+1; i++){
 
 var ModalAdd = "<modal><add><span class='m-i x'>close</span><h1><span class='m-i'>book</span>Add a subject</h1><input placeholder='Name'><de>Choose a color</de>"+PageColor+"<button>Add</button></add></modal>"
 var PageEmpty = "<header><input><span class='m-i f'>search</span><searchoptions></searchoptions></header><sidepanel><line></line><el><span class='m-i'>add</span></el><el class='a'><span class='m-i'>info</span></el><el class='a b'><span class='m-i'>settings</span></el><sideclass></sideclass></sidepanel><classes></classes><activescreen></activescreen><div class='center'><oaction><ti><span class='m-i'>add</span>Add a subject</ti></oaction></div><whatitcando><h1>Features <span class='m-i'>auto_awesome</span></h1><feature><ti>Organize all your classes</ti><co>Manage <b>todo</b>s, <b>timers</b>, <b>study music</b>, all within your specific class.</co></feature><feature><ti>Helps you relax</ti><co>With customized study timer and a rest option.</co></feature><feature><ti>Entirely free and customizable</ti><co>The limit is you, do whatever you want in this app!</co></feature><version>Version "+settings.version+"</version></whatitcando>"
-var PageOptions = document.createElement("div")
-PageOptions.classList.add("settings")
-PageOptions.innerHTML = "<h2>Settings</h2>"
 
-function AddClass(name, color1, color2){
+function optionsPage(){
+    var PageOptions = document.createElement("div")
+    PageOptions.classList.add("settings")
+    PageOptions.innerHTML = "<h2>Settings</h2>"
+    function section(label){
+        var heading = document.createElement("h3")
+        heading.innerText = label
+        PageOptions.appendChild(heading)
+    }
+    function toggle(ti, co, setting){
+        var element = document.createElement("div")
+        element.classList.add("setting")
+        element.innerHTML = "<ti>"+ti+"</ti><co>"+co+"</co>"+
+        "<toggleswitch><div></div></toggleswitch>"
+        var toggleswitch = element.getElementsByTagName("toggleswitch")[0]
+        ButtonEvent(toggleswitch, function(){
+            if(toggleswitch.classList.contains("active")){
+                toggleswitch.classList.remove("active")
+            }
+            else{
+                toggleswitch.classList.add("active")
+            }
+        })
+        PageOptions.appendChild(element)
+    }
+    function choice(ti){
+        var element = document.createElement("div")
+        element.classList.add("setting")
+        element.innerHTML = "<ti>"+ti+"</ti>"
+        PageOptions.appendChild(element)
+    }
+    section("Visual")
+    toggle("Glass Effect", "Using semi transparent elements and blur makes beautiful backgrounds but costs a lot of performance.")
+    toggle("UI Animations", "Smooth transitions between elements. Might make some users nauseous.")
+    choice("Custom Background")
+    section("Advanced")
+    var clearBtn = document.createElement("button")
+    clearBtn.innerText = "Clear all data"
+    ButtonEvent(clearBtn, ClearData)
+    PageOptions.appendChild(clearBtn)
+    return PageOptions
+}
+window.addEventListener("load", function(){
+    ActiveScreen(optionsPage())
+})
+
+
+function LoadClass(name, color1, color2, classId){
     var classes = app.getElementsByTagName("classes")[0]
     var sideclass = app.getElementsByTagName("sideclass")[0]
     var classEl = document.createElement("class")
@@ -43,19 +114,25 @@ function AddClass(name, color1, color2){
         app.getElementsByTagName("line")[0].style.height = "calc(100% - 60px)"
         app.getElementsByTagName("oaction")[0].style.transform = "translateY(-140%)"
     }
+    classEl.setAttribute("classId", classId)
+    classCircleEl.setAttribute("classId", classId)
+    ButtonEvent(classEl, openClass, classId)
+    ButtonEvent(classCircleEl, openClass, classId)
+}
+
+function AddClass(name, color1, color2){
     var classId = guidGenerator(4)
-    var existingClasseIds = Object.keys(realStorage.classes)
+    var existingClasseIds = Object.keys(storage.classes)
     while(existingClasseIds.includes(classId)){
         classId = guidGenerator(4)
     }
-    classEl.setAttribute("classId", classId)
-    classCircleEl.setAttribute("classId", classId)
-    realStorage.classes[classId] = {}
-    realStorage.classes[classId].name = name
-    realStorage.classes[classId].color1 = color1
-    realStorage.classes[classId].color2 = color2
-    ButtonEvent(classEl, openClass, classId)
-    ButtonEvent(classCircleEl, openClass, classId)
+    storage.classes[classId] = {}
+    storage.classes[classId].name = name
+    storage.classes[classId].color1 = color1
+    storage.classes[classId].color2 = color2
+    storage.classes[classId].posts = {}
+    SaveSettings()
+    LoadClass(name, color1, color2, classId)
 }
 
 function ActiveScreen(element){
@@ -75,23 +152,22 @@ function ActiveScreen(element){
     }
 }
 
-if(storage){
-    app.innerHTML = storage
-}
-else{
-    app.innerHTML = ModalAdd + PageEmpty
-}
+app.innerHTML = ModalAdd + PageEmpty
+
 
 var modal = app.getElementsByTagName("modal")[0]
 var add = app.getElementsByTagName("add")[0]
 var features = app.getElementsByTagName("whatitcando")[0]
 var sidepanel = app.getElementsByTagName("sidepanel")[0]
-app.getElementsByTagName("oaction")[0].onclick = sidepanel.getElementsByTagName("el")[0].onclick = function(){
+function hideWelcome(){
     features.style.transform = "translateX(-50%)scale(0.4)"
     features.style.opacity = 0
     features.style.visibility = "hidden"
     sidepanel.style.visibility = "visible"
     sidepanel.style.width = "70px"
+}
+app.getElementsByTagName("oaction")[0].onclick = sidepanel.getElementsByTagName("el")[0].onclick = function(){
+    hideWelcome()
     modal.style.transition = "2s"
     modal.style.background = "#00000044"
     modal.style.visibility = "visible"
@@ -157,7 +233,7 @@ sidepanel.getElementsByClassName("a")[0].onclick = function(){
 }
 
 sidepanel.getElementsByClassName("b")[0].onclick = function(){
-    ActiveScreen(PageOptions)
+    ActiveScreen(optionsPage())
 }
 
 var search = app.getElementsByTagName("header")[0].getElementsByTagName("input")[0]
@@ -201,9 +277,10 @@ function openClass(classId){
     element.classList.add("class")
     var heading = document.createElement("input")
     heading.contentEditable = true
-    heading.value = realStorage.classes[classId].name
+    heading.value = storage.classes[classId].name
     function rename(newName){
-        realStorage.classes[classId].name = newName
+        storage.classes[classId].name = newName
+        SaveSettings()
         var elements = document.querySelectorAll('[classId="'+classId+'"]')
         for(let i = 0; i < elements.length; i++){
             const element = elements[i]
@@ -226,8 +303,50 @@ function openClass(classId){
     element.appendChild(heading)
 
     var r = document.querySelector(':root')
-    r.style.setProperty('--color1', realStorage.classes[classId].color1)
-    r.style.setProperty('--color2', realStorage.classes[classId].color2)
+    r.style.setProperty('--color1', storage.classes[classId].color1)
+    r.style.setProperty('--color2', storage.classes[classId].color2)
 
     ActiveScreen(element)
+
+
+    var posts = document.createElement("posts")
+    element.appendChild(posts) 
+
+    var loadPosts = Object.keys(storage.classes[classId].posts)
+    if(loadPosts.length>0){
+        hideWelcome()
+        for (let i = 0; i < loadPosts.length; i++) {
+            const postId = loadPosts[i]
+            const content = storage.classes[classId].posts[loadPosts[i]]
+            loadPost(content, postId)
+        }
+    }
+
+    function loadPost(content, postId){
+        const element = document.createElement("post")
+        element.innerHTML = content
+        element.setAttribute('postId', postId)
+        posts.appendChild(element)
+    }
+    function addPost(content){
+        var postId = guidGenerator(8)
+        var existingClasseIds = Object.keys(storage.classes[classId].posts)
+        while(existingClasseIds.includes(postId)){
+            postId = guidGenerator(4)
+        }
+        storage.classes[classId].posts[postId] = content
+        // maybe add dates and stuff of creation and probs edits?
+        SaveSettings()
+        loadPost(content, postId)
+    }
+
+    var createPost = document.createElement("createpost")
+    createPost.contentEditable = true
+    createPost.addEventListener("keydown", function(e){
+        if(e.key=="Enter" && !e.shiftKey){
+            addPost(createPost.innerHTML)
+            createPost.innerHTML = ""
+        }
+    })
+    element.appendChild(createPost)
 }
