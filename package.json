@@ -1,0 +1,25 @@
+{
+  "name": "studyfocus",
+  "version": "1.0.0",
+  "description": "A way to organize your classes.",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hypenexy/StudyFocus.git"
+  },
+  "keywords": [
+    "study"
+  ],
+  "author": "Hypenexy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Hypenexy/StudyFocus/issues"
+  },
+  "homepage": "https://github.com/Hypenexy/StudyFocus#readme",
+  "devDependencies": {
+    "electron": "^24.1.2"
+  }
+}
